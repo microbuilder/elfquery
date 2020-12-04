@@ -31,10 +31,7 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "goelf",
 	Short: "ELF analysis tool",
-	Long:  `goelf is a utility for analysing ELF executable images.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+	Long:  `A utility for analysing ELF executable images.`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -57,7 +54,7 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // initConfig reads in config file and ENV variables if set.
