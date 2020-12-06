@@ -56,7 +56,7 @@ Create a new tag using semantic versioning:
 
 ```bash
 $ git tag -a v0.1.0 -m "First release"
-$ git push origin v0.1.0
+$ git push --tags
 ```
 
 ### Build a release

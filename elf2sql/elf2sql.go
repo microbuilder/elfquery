@@ -3,15 +3,32 @@ package elf2sql
 import (
 	"database/sql"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"reflect"
+	"strings"
 
 	"github.com/yalue/elf_reader"
 
 	// Use sqlite3 for the SQL database
 	_ "github.com/mattn/go-sqlite3"
+)
+
+var (
+	// DBCon provides access to the shared database
+	DBCon *sql.DB
+)
+
+// DisplayFormat is used with the Render function to determine how rows are
+// rendered.
+type DisplayFormat uint8
+
+// Display format options
+const (
+	DFText   DisplayFormat = 0 // Plain text
+	DFPretty               = 1 // Pretty print output
+	DFJson                 = 2 // JSON output
+	DFYaml                 = 3 // YAML output
 )
 
 // SymBinding represents symbolic table binding values
@@ -151,32 +168,33 @@ const createSymbolTable string = `CREATE TABLE symbols (
 	Section      text
 	)`
 
-// RunQuery loads the specified ELF file into a memory-based SQLite database,
-// and runs the specific SQL query against the database.
+// InitDB loads the specified ELF file into a memory-based SQLite database.
 // The database contains two tables: 'sections' and 'symbols'.
-func RunQuery(filename string, query string) {
+func InitDB(filename string) error {
 	f, e := ioutil.ReadFile(filename)
 	_elf, e := elf_reader.ParseELFFile(f)
-	check(e)
-
-	if query == "" {
-		fmt.Printf("No query string provided")
-		return
+	if e != nil {
+		return e
 	}
 
 	// Open a new SQLite database in memory
 	db, e := sql.Open("sqlite3", ":memory:")
-	check(e)
-	defer db.Close()
+	if e != nil {
+		return e
+	}
+	DBCon = db
 
 	// Create sections table
-	_, e = db.Exec(createSectionTable)
-	check(e)
+	_, e = DBCon.Exec(createSectionTable)
+	if e != nil {
+		return e
+	}
 
 	// Create symbols table
-	_, e = db.Exec(createSymbolTable)
-	check(e)
-
+	_, e = DBCon.Exec(createSymbolTable)
+	if e != nil {
+		return e
+	}
 	// Iterate over sections to populate the database
 	count := _elf.GetSectionCount()
 	for i := uint16(0); i < count; i++ {
@@ -206,15 +224,21 @@ func RunQuery(filename string, query string) {
 		}
 
 		// Insert the section into the DB
-		tx, e := db.Begin()
-		check(e)
+		tx, e := DBCon.Begin()
+		if e != nil {
+			return e
+		}
 		stmt, e := tx.Prepare(`INSERT INTO sections VALUES (?,?,?,?,?,?,?,?,?,?,?)`)
-		check(e)
+		if e != nil {
+			return e
+		}
 		defer stmt.Close()
 		_, e = stmt.Exec(_sec.id, _sec.name, _sec.stype, _sec.flags,
 			_sec.address, _sec.offset, _sec.size, _sec.linkedindex, _sec.info,
 			_sec.alignment, _sec.entrysize)
-		check(e)
+		if e != nil {
+			return e
+		}
 		tx.Commit()
 
 		// Get Symbols
@@ -245,33 +269,46 @@ func RunQuery(filename string, query string) {
 				}
 
 				// Insert symbol into table
-				tx, e := db.Begin()
-				check(e)
+				tx, e := DBCon.Begin()
+				if e != nil {
+					return e
+				}
 				stmt, e := tx.Prepare(`INSERT INTO symbols VALUES (NULL,?,?,?,?,?,?,?,?)`)
-				check(e)
+				if e != nil {
+					return e
+				}
 				defer stmt.Close()
 				_, e = stmt.Exec(_sym.value, _sym.size,
 					symTypeStrings[_sym.symboltype],
 					symBindingStrings[_sym.binding],
 					symVisStrings[_sym.visibility],
 					_sym.sectionindex, _sym.name, _sym.section)
-				check(e)
+				if e != nil {
+					return e
+				}
 				tx.Commit()
 			}
 		}
 	}
 
-	// Execute the provided query
-	rows, e := db.Query(query)
-	check(e)
-	defer rows.Close()
+	return nil
+}
+
+// CloseDB closes the shared database connection
+func CloseDB() {
+	DBCon.Close()
+}
+
+// Renders rows in plain text
+func renderRowsText(rows *sql.Rows) string {
+	var sb strings.Builder
 
 	// Display the column names
 	cols, _ := rows.Columns()
 	for _, col := range cols {
-		fmt.Printf("%s, ", col)
+		sb.WriteString(fmt.Sprintf("%s, ", col))
 	}
-	fmt.Printf("\n\n")
+	sb.WriteString(fmt.Sprintf("\n\n"))
 
 	// Iterate over each row
 	for rows.Next() {
@@ -284,7 +321,7 @@ func RunQuery(filename string, query string) {
 
 		// Scan the row, dumping the values into columnPointers
 		if err := rows.Scan(columnPointers...); err != nil {
-			return
+			return ""
 		}
 
 		// User reflection to determine each row's value type
@@ -293,54 +330,38 @@ func RunQuery(filename string, query string) {
 			if *val != nil {
 				switch reflect.Indirect(reflect.ValueOf(val)).Elem().Kind() {
 				case reflect.String:
-					fmt.Printf("%s, ", *val)
+					sb.WriteString(fmt.Sprintf("%s, ", *val))
 				case reflect.Int64:
-					fmt.Printf("%d, ", *val)
+					sb.WriteString(fmt.Sprintf("%d, ", *val))
 				default:
-					fmt.Printf("%s, ", *val)
+					sb.WriteString(fmt.Sprintf("%s, ", *val))
 				}
 			}
 		}
-		fmt.Printf("\n")
+		sb.WriteString(fmt.Sprintf("\n"))
 	}
 
-	// // Query section data
-	// rows, e := db.Query("SELECT * FROM sections")
-	// check(e)
-	// defer rows.Close()
-	// for rows.Next() {
-	// 	var _sec Section
-	// 	e := rows.Scan(&_sec.id, &_sec.name, &_sec.stype, &_sec.flags,
-	// 		&_sec.address, &_sec.offset, &_sec.size, &_sec.linkedindex,
-	// 		&_sec.info, &_sec.alignment, &_sec.entrysize)
-	// 	check(e)
-	// 	fmt.Printf("[%3d]: %s\n", _sec.id, _sec.name)
-	// 	// fmt.Printf("[%3d]: %s\n", _id, _name, _type, _flags, _address, _offset, _size, _linkedindex, _info, _alignment, _entrysize)
-	// }
-
-	// // Query symbol data
-	// rows, e := db.Query("SELECT * FROM symbols WHERE section = 'text' AND size > 0 ORDER BY Size DESC")
-	// check(e)
-	// defer rows.Close()
-	// fmt.Printf("Symbols in 'text' > 0 bytes, sorted by size desc:\n")
-	// for rows.Next() {
-	// 	var _sym Symbol
-	// 	e := rows.Scan(&_sym.id, &_sym.value, &_sym.size, &_sym.symboltype,
-	// 		&_sym.binding, &_sym.visibility, &_sym.sectionindex,
-	// 		&_sym.name, &_sym.section)
-	// 	check(e)
-	// 	fmt.Printf("%s, %d bytes, %s\n", _sym.name, _sym.size, _sym.section)
-	// }
+	return sb.String()
 }
 
-func check(e error) {
+// RunQuery runs the specified SQL query against the database.
+func RunQuery(query string, format DisplayFormat) (string, error) {
+	if query == "" {
+		return "", os.ErrInvalid
+	}
+
+	// Execute the provided query
+	rows, e := DBCon.Query(query)
+	defer rows.Close()
 	if e != nil {
-		panic(e)
+		return "", e
 	}
-}
 
-func ioReader(file string) io.ReaderAt {
-	r, err := os.Open(file)
-	check(err)
-	return r
+	// Hand rendering off to the appropriate row renderer
+	switch format {
+	case DFText:
+		return renderRowsText(rows), nil
+	default:
+		return "DisplayFormat currently unsupported\n", nil
+	}
 }

@@ -6,6 +6,9 @@ elfquery
 *.so
 *.dylib
 
+# Ignore dist folder for now (goreleaser)
+dist/
+
 # Test binary, built with `go test -c`
 *.test
 

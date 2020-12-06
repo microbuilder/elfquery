@@ -66,11 +66,45 @@ To show 'Weak' symbols implemented in the ELF file:
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		query, _ := cmd.Flags().GetString("query")
+		output, _ := cmd.Flags().GetString("output")
+
+		// Validate display format
+		var df elf2sql.DisplayFormat
+		switch output {
+		case "text":
+			df = elf2sql.DFText
+		case "pretty":
+			df = elf2sql.DFPretty
+		case "json":
+			df = elf2sql.DFJson
+		case "yaml":
+			df = elf2sql.DFYaml
+		default:
+			fmt.Printf("invalid output flag: %s\n", output)
+			return
+		}
+
+		// Check for REPL mode
 		if query == "" {
 			fmt.Printf("TODO: REPL mode\n")
-		} else {
-			elf2sql.RunQuery(args[0], query)
+			return
 		}
+
+		// Populate the database with the ELF data
+		e := elf2sql.InitDB(args[0])
+		defer elf2sql.CloseDB()
+		if e != nil {
+			fmt.Printf("unable to initialise the SQLite3 database in memory\n")
+			return
+		}
+
+		// Request and display the query results
+		s, e := elf2sql.RunQuery(query, df)
+		if e != nil {
+			fmt.Printf("invalid query: %s\n", query)
+			return
+		}
+		fmt.Printf(s)
 	},
 }
 
@@ -84,5 +118,5 @@ func init() {
 	// sqlCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	sqlCmd.Flags().StringP("query", "q", "", "SQL query to execute")
-	sqlCmd.Flags().StringP("output", "o", "", "output format")
+	sqlCmd.Flags().StringP("output", "o", "text", "output format (text, pretty, json, yaml)")
 }
