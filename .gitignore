@@ -14,3 +14,7 @@ goelf
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+# Keys and certificates
+SERVER.crt
+SERVER.key
