@@ -19,6 +19,7 @@ $ go mod edit -replace github.com/microbuilder/elfquery=/Users/kevin/zendnode/EL
 ```bash
 $ go get github.com/spf13/cobra/cobra
 $ go get github.com/yalue/elf_reader
+$ go get github.com/goreleaser/goreleaser
 $ go get github.com/mattn/go-sqlite3
 $ go get github.com/microbuilder/elfquery
 ```
@@ -37,5 +38,37 @@ Add commands via:
 cobra -a "Kevin Townsend <kevin@ktownsend.com>" add <commandName>
 ```
 
-## Redirect modules to local code
+## goreleaser
 
+### Initialisation
+
+Init goreleaser once:
+
+```bash
+$ goreleaser init
+   • Generating .goreleaser.yml file
+   • config created; please edit accordingly to your needs file=.goreleaser.yml
+```
+
+### Tagging a release
+
+Create a new tag using semantic versioning:
+
+```bash
+$ git tag -a v0.1.0 -m "First release"
+$ git push origin v0.1.0
+```
+
+### Build a release
+
+Test build via:
+
+```bash
+$ goreleaser --snapshot --skip-publish --rm-dist
+```
+
+Submit a new release to Github's release page:
+
+```bash
+$ goreleaser
+```
