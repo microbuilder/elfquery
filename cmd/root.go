@@ -35,7 +35,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.goelf.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.elfquery.yaml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -55,9 +55,9 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".goelf" (without extension).
+		// Search config in home directory with name ".elfquery" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".goelf")
+		viper.SetConfigName(".elfquery")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match

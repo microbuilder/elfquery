@@ -1,4 +1,4 @@
-module github.com/microbuilder/goelf
+module github.com/microbuilder/elfquery
 
 go 1.15
 

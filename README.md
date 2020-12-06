@@ -1,11 +1,11 @@
-# goelf
+# elfquery
 
 An ELF file analysis utility written in Golang that allows you to analyse
 ELF files via:
 
-- a web interface (`goelf http`)
-- SQL commands (`goelf sql`)
-- the command line (`goelf info`)
+- a web interface (`elfquery http`)
+- SQL commands (`elfquery sql`)
+- the command line (`elfquery info`)
 
 ## Installation
 
@@ -19,7 +19,7 @@ You can analyse the contents of the ELF file in any web browser via the
 `http` command.
 
 ```bash
-$ goelf http samples/lpc55s69_zephyr.elf
+$ elfquery http samples/lpc55s69_zephyr.elf
 ```
 
 TODO: Animated GIF
@@ -87,7 +87,7 @@ Two tables are available in the SQLite database:
 One-off queries can be executed as follows:
 
 ```bash
-$ goelf sql samples/lpc55s69_zephyr.elf \
+$ elfquery sql samples/lpc55s69_zephyr.elf \
   -q "SELECT printf('0x%X', Value) AS Address, Size, Type, Binding, \
   Visibility, Section, Name FROM symbols ORDER BY Size DESC LIMIT 10"
 ```
@@ -146,7 +146,7 @@ Any SQL query supported by SQLite3 can used!
 ### Command Line
 
 ```bash
-$ goelf info samples/lpc55s69_zephyr.elf
+$ elfquery info samples/lpc55s69_zephyr.elf
 Machine: ARM
 ELF Class: 32 bits
 ELF Type: ET_EXEC

@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/microbuilder/goelf/httpserver"
+	"github.com/microbuilder/elfquery/httpserver"
 	"github.com/spf13/cobra"
 )
 

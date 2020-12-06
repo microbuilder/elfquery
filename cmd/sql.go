@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/microbuilder/goelf/elf2sql"
+	"github.com/microbuilder/elfquery/elf2sql"
 	"github.com/spf13/cobra"
 )
 
