@@ -11,7 +11,7 @@ import (
 
 // infoCmd represents the info command
 var infoCmd = &cobra.Command{
-	Use:   "info [filename]",
+	Use:   "info filename",
 	Short: "Basic file details",
 	Long: `Lists key information about the specified ELF file, such as the
 target machine, ELF file type, sections, etc.`,

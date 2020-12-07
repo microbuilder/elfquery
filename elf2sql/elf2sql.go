@@ -23,10 +23,14 @@ type DisplayFormat uint8
 
 // Display format options
 const (
-	DFText   DisplayFormat = 0 // Plain text
-	DFPretty               = 1 // Pretty print output
-	DFJson                 = 2 // JSON output
-	DFYaml                 = 3 // YAML output
+	DFText      DisplayFormat = 0 // Plain text
+	DFPretty                  = 1 // Unicode output
+	DFPrettyCol               = 2 // Unicode color output
+	DFCSV                     = 3 // Comm-separated output
+	DFMarkdown                = 4 // Markdown table output
+	DFHtml                    = 5 // HTML table output
+	DFJson                    = 6 // JSON output
+	DFYaml                    = 7 // YAML output
 )
 
 // SymBinding represents symbolic table binding values
@@ -313,7 +317,17 @@ func RunQuery(query string, format DisplayFormat) (string, error) {
 	// Hand rendering off to the appropriate row renderer
 	switch format {
 	case DFText:
-		return renderText(rows), nil
+		return renderPretty(rows, PrettyASCII), nil
+	case DFPretty:
+		return renderPretty(rows, PrettyUnicode), nil
+	case DFPrettyCol:
+		return renderPretty(rows, PrettyColor), nil
+	case DFCSV:
+		return renderPretty(rows, PrettyCSV), nil
+	case DFMarkdown:
+		return renderPretty(rows, PrettyMarkdown), nil
+	case DFHtml:
+		return renderPretty(rows, PrettyHTML), nil
 	default:
 		return "DisplayFormat currently unsupported\n", nil
 	}

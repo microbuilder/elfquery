@@ -9,7 +9,7 @@ import (
 
 // sqlCmd represents the sql command
 var sqlCmd = &cobra.Command{
-	Use:   "sql [filename]",
+	Use:   "sql filename",
 	Short: "Run SQL queries against the ELF file",
 	Long: `Reads all symbolic information from the ELF file and adds it to an
 in-memory SQLite database, which can be queried in the REPL or via a SQL
@@ -57,7 +57,7 @@ To select the name and size of each symbol in the 'bss' section:
 
 To do the same query but restrict it to the 10 largest symbols:
 
-  SELECT Name, Size  FROM symbols WHERE Section = 'bss' ORDER BY Size DESC LIMIT 10
+  SELECT Name, Size FROM symbols WHERE Section = 'bss' ORDER BY Size DESC LIMIT 10
 
 To show 'Weak' symbols implemented in the ELF file:
 
@@ -65,26 +65,26 @@ To show 'Weak' symbols implemented in the ELF file:
 `,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		query, _ := cmd.Flags().GetString("query")
+		// Check display format
 		output, _ := cmd.Flags().GetString("output")
-
-		// Validate display format
-		var df elf2sql.DisplayFormat
-		switch output {
-		case "text":
-			df = elf2sql.DFText
-		case "pretty":
-			df = elf2sql.DFPretty
-		case "json":
-			df = elf2sql.DFJson
-		case "yaml":
-			df = elf2sql.DFYaml
-		default:
+		outputDict := map[string]elf2sql.DisplayFormat{
+			"text":   elf2sql.DFText,
+			"pretty": elf2sql.DFPretty,
+			"color":  elf2sql.DFPrettyCol,
+			"csv":    elf2sql.DFCSV,
+			"md":     elf2sql.DFMarkdown,
+			"html":   elf2sql.DFHtml,
+			"json":   elf2sql.DFJson,
+			"yaml":   elf2sql.DFJson,
+		}
+		df, ok := outputDict[output]
+		if !ok {
 			fmt.Printf("invalid output flag: %s\n", output)
 			return
 		}
 
 		// Check for REPL mode
+		query, _ := cmd.Flags().GetString("query")
 		if query == "" {
 			fmt.Printf("TODO: REPL mode\n")
 			return
@@ -111,12 +111,6 @@ To show 'Weak' symbols implemented in the ELF file:
 func init() {
 	rootCmd.AddCommand(sqlCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// sqlCmd.PersistentFlags().String("foo", "", "A help for foo")
-
 	sqlCmd.Flags().StringP("query", "q", "", "SQL query to execute")
-	sqlCmd.Flags().StringP("output", "o", "text", "output format (text, pretty, json, yaml)")
+	sqlCmd.Flags().StringP("output", "o", "text", "output format (text, pretty, color, csv, md, html, json, yaml)")
 }

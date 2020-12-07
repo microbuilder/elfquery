@@ -7,7 +7,7 @@ import (
 
 // httpCmd represents the http command
 var httpCmd = &cobra.Command{
-	Use:   "http [filename]",
+	Use:   "http filename",
 	Short: "HTTP based file analysis",
 	Long: `Starts up an HTTP server instance that can be used to perform
 detailed analysis of the specified ELF file.`,

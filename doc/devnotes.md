@@ -20,6 +20,7 @@ $ go mod edit -replace github.com/microbuilder/elfquery=/Users/kevin/zendnode/EL
 $ go get github.com/spf13/cobra/cobra
 $ go get github.com/yalue/elf_reader
 $ go get github.com/goreleaser/goreleaser
+$ go get github.com/jedib0t/go-pretty/table
 $ go get github.com/mattn/go-sqlite3
 $ go get github.com/microbuilder/elfquery
 ```
