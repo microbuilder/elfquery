@@ -1,8 +1,8 @@
 # elfquery
 
-An ELF file analysis utility written in Golang.
+An ELF file analysis tool written in Golang.
 
-This utility parses the symbolic content of an ELF file and allows the data
+This tool parses the symbolic content of an ELF file and allows the data
 to be analysed via:
 
 - SQL queries (`elfquery sql`)
@@ -23,24 +23,25 @@ with the `-q` parameter:
 
 ```bash
 $ elfquery sql samples/lpc55s69_zephyr.elf -q \
-  "SELECT printf('0x%X', Value) AS Address, Name, Size FROM symbols \
+  "SELECT printf('0x%X', Value) AS Address, Name, Binding, Size FROM symbols \
   WHERE Section LIKE 'bss' ORDER BY Size DESC LIMIT 10"
 
-+------------+--------------------------+------+
-| ADDRESS    | NAME                     | SIZE |
-+------------+--------------------------+------+
-| 0x30000110 | z_main_thread            | 128  |
-| 0x30000090 | z_idle_threads           | 128  |
-| 0x300001C0 | gpio_mcux_lpc_port0_data | 80   |
-| 0x30000210 | gpio_mcux_lpc_port1_data | 80   |
-| 0x30000298 | _kernel                  | 48   |
-| 0x30000270 | s_pintCallback           | 32   |
-| 0x300001AC | dyn_reg_info             | 20   |
-| 0x30000290 | s_secpintCallback        | 8    |
-| 0x30000190 | curr_tick                | 8    |
-| 0x30000260 | mcux_flexcomm_0_data     | 8    |
-+------------+--------------------------+------+
++------------+--------------------------+---------+------+
+| ADDRESS    | NAME                     | BINDING | SIZE |
++------------+--------------------------+---------+------+
+| 0x30000110 | z_main_thread            | global  | 128  |
+| 0x30000090 | z_idle_threads           | global  | 128  |
+| 0x300001C0 | gpio_mcux_lpc_port0_data | local   | 80   |
+| 0x30000210 | gpio_mcux_lpc_port1_data | local   | 80   |
+| 0x30000298 | _kernel                  | global  | 48   |
+| 0x30000270 | s_pintCallback           | local   | 32   |
+| 0x300001AC | dyn_reg_info             | local   | 20   |
+| 0x30000290 | s_secpintCallback        | local   | 8    |
+| 0x30000190 | curr_tick                | local   | 8    |
+| 0x30000260 | mcux_flexcomm_0_data     | local   | 8    |
++------------+--------------------------+---------+------+
 ```
+
 #### Output Formatting
 
 The following output options (`-o`) are supported:
