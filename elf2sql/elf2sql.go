@@ -30,7 +30,6 @@ const (
 	DFMarkdown                = 4 // Markdown table output
 	DFHtml                    = 5 // HTML table output
 	DFJson                    = 6 // JSON output
-	DFYaml                    = 7 // YAML output
 )
 
 // SymBinding represents symbolic table binding values
@@ -328,6 +327,8 @@ func RunQuery(query string, format DisplayFormat) (string, error) {
 		return renderPretty(rows, PrettyMarkdown), nil
 	case DFHtml:
 		return renderPretty(rows, PrettyHTML), nil
+	case DFJson:
+		return RenderJSON(rows)
 	default:
 		return "DisplayFormat currently unsupported\n", nil
 	}

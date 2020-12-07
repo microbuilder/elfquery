@@ -52,8 +52,7 @@ The following output options (`-o`) are supported:
 - `csv`: Comma-separated value table
 - `md`: Markdown table
 - `html`: HTML table
-- `json`: JSON data (not yet implemented)
-- `yaml`: YAML data (not yet implemented)
+- `json`: JSON data
 
 #### Table Definitions
 

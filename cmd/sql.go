@@ -75,7 +75,6 @@ To show 'Weak' symbols implemented in the ELF file:
 			"md":     elf2sql.DFMarkdown,
 			"html":   elf2sql.DFHtml,
 			"json":   elf2sql.DFJson,
-			"yaml":   elf2sql.DFJson,
 		}
 		df, ok := outputDict[output]
 		if !ok {
@@ -112,5 +111,5 @@ func init() {
 	rootCmd.AddCommand(sqlCmd)
 
 	sqlCmd.Flags().StringP("query", "q", "", "SQL query to execute")
-	sqlCmd.Flags().StringP("output", "o", "text", "output format (text, pretty, color, csv, md, html, json, yaml)")
+	sqlCmd.Flags().StringP("output", "o", "text", "output format (text, pretty, color, csv, md, html, json)")
 }
