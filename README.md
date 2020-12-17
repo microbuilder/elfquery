@@ -105,13 +105,13 @@ To select the name and size of each symbol in the 'bss' section:
 
 ```SQL
 SELECT Name, Size FROM symbols WHERE Section = 'bss'
-````
+```
 
 To do the same query but restrict it to the 10 largest symbols:
 
 ```SQL
-SELECT Name, Size  FROM symbols WHERE Section = 'bss' ORDER BY Size DESC LIMIT 10
-````
+SELECT Name, Size FROM symbols WHERE Section = 'bss' ORDER BY Size DESC LIMIT 10
+```
 
 To show 'Weak' symbols implemented in the ELF file:
 
@@ -121,34 +121,17 @@ SELECT * FROM symbols WHERE Binding LIKE 'weak'
 
 Any SQL query supported by SQLite3 can used!
 
-### HTTP (not yet implemented)
+### HTTP
 
 You can analyse the contents of the ELF file in any web browser via the
 `http` command.
 
 ```bash
 $ elfquery http samples/lpc55s69_zephyr.elf
+Starting HTTP server on port http://localhost:1443
 ```
 
 TODO: Animated GIF
-
-#### Key Generation
-
-The HTTP server requires a private key for TLS, which can be generated via:
-
-```bash
-$ openssl ecparam -name secp256r1 -genkey -out SERVER.key
-```
-
-You can then generate a self-signed X.509 certificate via:
-
-```bash
-$ openssl req -new -x509 -sha256 -days 3650 -key SERVER.key -out SERVER.crt \
-        -subj "/O=Linaro, LTD/CN=localhost"
-```
-
-This certificate should be available on any device(s) connecting to the HTTP
-server to verify that we are communicating with the intended server.
 
 ### Command Line
 

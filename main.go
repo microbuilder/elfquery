@@ -1,4 +1,4 @@
-package main
+package main // github.com/microbuilder/elfquery
 
 import (
 	"github.com/microbuilder/elfquery/cmd"

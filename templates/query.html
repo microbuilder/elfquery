@@ -1,0 +1,38 @@
+<html>
+
+<head>
+    <title>{{.PageTitle}}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+    <div class="d-flex justify-content-center">
+        <div>
+            <h1>Query Results</h1>
+            <pre>{{.SQLQuery}}</pre>
+            <input class="form-control" id="resinput" type="text" placeholder="Search..">
+            <br>
+            <div class="table-responsive">
+                {{.Results}}
+            </div>
+        </div>
+    </div>
+
+    <!-- Results table search -->
+    <script>
+        $(document).ready(function () {
+            $("#resinput").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#restable tr").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

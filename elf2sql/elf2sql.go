@@ -1,4 +1,4 @@
-package elf2sql
+package elf2sql // github.com/microbuilder/elfquery/elf2sql
 
 import (
 	"database/sql"

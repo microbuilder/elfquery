@@ -79,7 +79,7 @@ func renderPretty(rows *sql.Rows, format PrettyFormat) string {
 	case PrettyMarkdown:
 		return fmt.Sprintf("%s\n", t.RenderMarkdown())
 	case PrettyHTML:
-		t.SetHTMLCSSClass("pretty_table")
+		t.SetHTMLCSSClass("table")
 		return fmt.Sprintf("%s\n", t.RenderHTML())
 	case PrettyCSV:
 		return fmt.Sprintf("%s\n", t.RenderCSV())
