@@ -19,7 +19,29 @@ ToDo
 ### SQL Queries (`sql`)
 
 Once parsed, the ELF file can be queried in the REPL, or by sending a SQL query
-with the `-q` parameter:
+with the `-q` parameter, or by sending a query alias matching a sqlaliases
+record in `.elfquery.toml`.
+
+> run `elfquery sql samples/lpc55s69_zephyr.elf -a help` to list available
+  aliases):
+
+```bash
+$ elfquery sql samples/lpc55s69_zephyr.elf -a bss10
++--------------------------+------+
+| NAME                     | SIZE |
++--------------------------+------+
+| z_main_thread            | 128  |
+| z_idle_threads           | 128  |
+| gpio_mcux_lpc_port0_data | 80   |
+| gpio_mcux_lpc_port1_data | 80   |
+| _kernel                  | 48   |
+| s_pintCallback           | 32   |
+| dyn_reg_info             | 20   |
+| s_secpintCallback        | 8    |
+| curr_tick                | 8    |
+| mcux_flexcomm_0_data     | 8    |
++--------------------------+------+
+```
 
 ```bash
 $ elfquery sql samples/lpc55s69_zephyr.elf -q \

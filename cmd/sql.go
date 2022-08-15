@@ -5,6 +5,7 @@ import (
 
 	"github.com/microbuilder/elfquery/elf2sql"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // sqlCmd represents the sql command
@@ -43,23 +44,23 @@ Two tables are available in the SQLite database:
   Alignment     Integer   Address alignment constraints
   EntrySize     Integer   Size in bytes of each fixed-size entry
 
-To list all sections in the ELF file:
+To list all sections in the ELF file ('sections' alias):
 
   SELECT Name, printf('0x%X', Address) AS Address, Size FROM sections
 
-To list every symbol in order:
+To list every symbol in order ('symbols' alias):
 
   SELECT * FROM symbols ORDER BY ID ASC
 
-To select the name and size of each symbol in the 'bss' section:
+To select the name and size of each symbol in the 'bss' section ('bss' alias):
 
   SELECT Name, Size FROM symbols WHERE Section = 'bss'
 
-To do the same query but restrict it to the 10 largest symbols:
+To do the same query but restrict it to the 10 largest symbols ('bss10' alias):
 
   SELECT Name, Size FROM symbols WHERE Section = 'bss' ORDER BY Size DESC LIMIT 10
 
-To show 'Weak' symbols implemented in the ELF file:
+To show 'Weak' symbols implemented in the ELF file ('weak' alias):
 
   SELECT * FROM symbols WHERE Binding LIKE 'weak'
 `,
@@ -82,13 +83,6 @@ To show 'Weak' symbols implemented in the ELF file:
 			return
 		}
 
-		// Check for REPL mode
-		query, _ := cmd.Flags().GetString("query")
-		if query == "" {
-			fmt.Printf("TODO: REPL mode\n")
-			return
-		}
-
 		// Populate the database with the ELF data
 		e := elf2sql.InitDB(args[0])
 		defer elf2sql.CloseDB()
@@ -97,7 +91,43 @@ To show 'Weak' symbols implemented in the ELF file:
 			return
 		}
 
-		// Request and display the query results
+		// Check for SQL aliases
+		alias, _ := cmd.Flags().GetString("alias")
+		if alias != "" {
+			aliases := viper.GetStringMapString("sqlaliases")
+
+			query, exists := aliases[alias]
+			if !exists {
+				fmt.Printf("Invalid SQL alias: %s\n", alias)
+				if viper.ConfigFileUsed() == "" {
+					fmt.Printf("No elfquery.toml found to parse sqlaliases!\n")
+					return
+				}
+				fmt.Printf("%s defines the following 'sqlaliases':\n", viper.ConfigFileUsed())
+				for a := range aliases {
+					fmt.Printf(" - %s\n", a)
+				}
+				return
+			}
+
+			// Request and display the alias query results
+			s, e := elf2sql.RunQuery(query, df)
+			if e != nil {
+				fmt.Printf("invalid query: %s\n", query)
+				return
+			}
+			fmt.Printf(s)
+			return
+		}
+
+		// Parse SQL query if no alias is provided
+		query, _ := cmd.Flags().GetString("query")
+		if query == "" {
+			fmt.Printf("TODO: REPL mode\n")
+			return
+		}
+
+		// Request and display the alias query results
 		s, e := elf2sql.RunQuery(query, df)
 		if e != nil {
 			fmt.Printf("invalid query: %s\n", query)
@@ -111,5 +141,6 @@ func init() {
 	rootCmd.AddCommand(sqlCmd)
 
 	sqlCmd.Flags().StringP("query", "q", "", "SQL query to execute")
+	sqlCmd.Flags().StringP("alias", "a", "", "SQL alias to execute (see .elfquery.toml)")
 	sqlCmd.Flags().StringP("output", "o", "text", "output format (text, pretty, color, csv, md, html, json)")
 }

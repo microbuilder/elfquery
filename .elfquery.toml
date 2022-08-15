@@ -1,0 +1,12 @@
+[sqlaliases]
+sections = "SELECT Name, printf('0x%X', Address) AS Address, Size FROM sections"
+symbols = "SELECT * FROM symbols ORDER BY ID ASC"
+symbols_sz = "SELECT * FROM symbols ORDER BY Size ASC"
+symbols_code = "SELECT * FROM symbols WHERE Type = 'code' ORDER BY Name ASC"
+symbols_data = "SELECT * FROM symbols WHERE Type = 'data' ORDER BY Name ASC"
+symbols_code_sz = "SELECT * FROM symbols WHERE Type = 'code' ORDER BY Size ASC"
+symbols_data_sz = "SELECT * FROM symbols WHERE Type = 'data' ORDER BY Size ASC"
+bss = "SELECT Name, Size FROM symbols WHERE Section = 'bss' ORDER BY Name"
+bss_sz = "SELECT Name, Size FROM symbols WHERE Section = 'bss' ORDER BY Size"
+bss10 = "SELECT Name, Size FROM symbols WHERE Section = 'bss' ORDER BY Size DESC LIMIT 10"
+weak = "SELECT * FROM symbols WHERE Binding LIKE 'weak' ORDER BY Name"
