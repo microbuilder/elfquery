@@ -56,6 +56,7 @@ func initConfig() {
 		}
 
 		// Search config in home directory with name ".elfquery" (without extension).
+		viper.AddConfigPath(".")
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".elfquery")
 	}
@@ -64,6 +65,6 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		// fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 }
