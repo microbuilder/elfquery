@@ -33,12 +33,8 @@ $ go install
 
 ### SQL Queries (`sql`)
 
-Once parsed, the ELF file can be queried in the REPL, or by sending a SQL query
-with the `-q` parameter, or by sending a query alias matching a sqlaliases
-record in `.elfquery.toml`.
-
-> run `elfquery sql samples/lpc55s69_zephyr.elf -a help` to list available
-  aliases):
+Once parsed, the ELF file can be queried by sending a SQL query alias defined
+in [.elfquery.toml](https://github.com/microbuilder/elfquery/blob/main/.elfquery.toml):
 
 ```bash
 $ elfquery sql samples/lpc55s69_zephyr.elf -a bss10
@@ -57,6 +53,8 @@ $ elfquery sql samples/lpc55s69_zephyr.elf -a bss10
 | mcux_flexcomm_0_data     | 8    |
 +--------------------------+------+
 ```
+
+... or by sending a custom SQL query with the `-q` parameter:
 
 ```bash
 $ elfquery sql samples/lpc55s69_zephyr.elf -q \
