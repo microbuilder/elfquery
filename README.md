@@ -12,7 +12,22 @@ Additional commands are also available, as described in the `--help` menu.
 
 ## Installation
 
-ToDo
+Make sure you have Go [installed locally](https://go.dev/doc/install).
+
+Clone a copy of this repository and then build it via:
+
+```bash
+$ git clone https://github.com/microbuilder/elfquery.git
+$ cd elfquery
+$ go build
+```
+
+You can also optionally install the binary as follows, which will place
+the `elfquery` binary in either the `$GOPATH/bin` or `$HOME/go/bin` folder:
+
+```bash
+$ go install
+```
 
 ## Usage
 
