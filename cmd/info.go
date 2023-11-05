@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -61,13 +62,52 @@ target machine, ELF file type, sections, etc.`,
 		fmt.Printf("OS ABI Version: 0x%X\n", _elf.ABIVersion)
 		fmt.Printf("Entry Point: 0x%08X\n", _elf.Entry)
 
+		// Calculate size data across each section
+		sztext, szdata, szbss := 0, 0, 0
+		for _, s := range _elf.Sections {
+			_text, _data, _bss := sectionSize(s.SectionHeader)
+			sztext += _text
+			szdata += _data
+			szbss += _bss
+		}
+		fmt.Printf("Text size: %d\n", sztext)
+		fmt.Printf("Data size: %d\n", szdata)
+		fmt.Printf("BSS size: %d\n", szbss)
+		fmt.Printf("Total size: %d\n", sztext+szdata+szbss)
+
 		if full {
+			// Display individual sections
 			fmt.Printf("Sections:\n")
 			for _, s := range _elf.Sections {
 				fmt.Printf("  0x%08X: %s\n", s.Addr, s.Name)
 			}
 		}
 	},
+}
+
+// sectionSize determine the text, data and bss size for the supplied ELF
+// section header using the same algorithm as GNU binutils 'size' tool.
+func sectionSize(sec elf.SectionHeader) (int, int, int) {
+	text, data, bss := 0, 0, 0
+
+	// Only count allocated memory
+	if strings.Contains(sec.Flags.String(), "SHF_ALLOC") {
+		// Text consists of executable instructions, or not writable
+		if strings.Contains(sec.Flags.String(), "SHF_EXECINSTR") ||
+			!strings.Contains(sec.Flags.String(), "SHF_WRITE") {
+			text = int(sec.Size)
+		} else {
+			// No data means bss
+			if strings.Contains(sec.Type.String(), "SHT_NOBITS") {
+				bss = int(sec.Size)
+			} else {
+				// Otherwise, count as data
+				data = int(sec.Size)
+			}
+		}
+	}
+
+	return text, data, bss
 }
 
 func check(e error) {
