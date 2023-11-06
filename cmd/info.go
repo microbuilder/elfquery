@@ -76,10 +76,22 @@ target machine, ELF file type, sections, etc.`,
 		fmt.Printf("Total size: %d\n", sztext+szdata+szbss)
 
 		if full {
-			// Display individual sections
-			fmt.Printf("Sections:\n")
+			// List program headers (comparible to 'readelf -Wl')
+			fmt.Printf("Program Headers (%d):\n", len(_elf.Progs))
+			fmt.Printf("     Type          Offset   VirtAddr   PhysAddr   FileSz  MemSz   Align Flags\n")
+			segnum := 0
+			for _, p := range _elf.Progs {
+				fmt.Printf("  %02d %-13s 0x%06X 0x%08X 0x%08X 0x%05X 0x%05X    %02d %s\n",
+					segnum, p.Type.String(), p.Off, p.Vaddr, p.Paddr, p.Filesz, p.Memsz, p.Align, p.Flags.String())
+				segnum++
+			}
+
+			// List sections
+			// ToDo: Map sections to program headers using offset, etc.
+			fmt.Printf("Sections (%d):\n", len(_elf.Sections))
+			fmt.Printf("  Address        Size Name\n")
 			for _, s := range _elf.Sections {
-				fmt.Printf("  0x%08X\t%d\t%s\n", s.Addr, s.Size, s.Name)
+				fmt.Printf("  0x%08X %8d %s\n", s.Addr, s.Size, s.Name)
 			}
 		}
 	},
