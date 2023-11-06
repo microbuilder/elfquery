@@ -76,7 +76,7 @@ target machine, ELF file type, sections, etc.`,
 		fmt.Printf("Total size: %d\n", sztext+szdata+szbss)
 
 		if full {
-			// List program headers (comparible to 'readelf -Wl')
+			// List program headers (comparable to 'readelf -Wl')
 			fmt.Printf("Program Headers (%d):\n", len(_elf.Progs))
 			fmt.Printf("     Type          Offset   VirtAddr   PhysAddr   FileSz  MemSz   Align Flags\n")
 			segnum := 0
@@ -87,11 +87,25 @@ target machine, ELF file type, sections, etc.`,
 			}
 
 			// List sections
-			// ToDo: Map sections to program headers using offset, etc.
 			fmt.Printf("Sections (%d):\n", len(_elf.Sections))
 			fmt.Printf("  Address        Size Name\n")
 			for _, s := range _elf.Sections {
 				fmt.Printf("  0x%08X %8d %s\n", s.Addr, s.Size, s.Name)
+			}
+
+			// Map sections to program headers
+			fmt.Printf("Section to Program Headers Map:\n")
+			segnum = 0
+			for _, p := range _elf.Progs {
+				fmt.Printf("  %02d ", segnum)
+				// Check is sections match current segment
+				for _, s := range _elf.Sections {
+					if (s.Size > 0) && (s.Addr >= p.Vaddr) && (s.Addr < p.Vaddr+p.Memsz) {
+						fmt.Printf("%s ", s.Name)
+					}
+				}
+				fmt.Printf("\n")
+				segnum++
 			}
 		}
 	},
