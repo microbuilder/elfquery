@@ -79,7 +79,7 @@ target machine, ELF file type, sections, etc.`,
 			// Display individual sections
 			fmt.Printf("Sections:\n")
 			for _, s := range _elf.Sections {
-				fmt.Printf("  0x%08X: %s\n", s.Addr, s.Name)
+				fmt.Printf("  0x%08X\t%d\t%s\n", s.Addr, s.Size, s.Name)
 			}
 		}
 	},
