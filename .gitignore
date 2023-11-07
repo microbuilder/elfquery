@@ -21,3 +21,6 @@ dist/
 # Keys and certificates
 SERVER.crt
 SERVER.key
+
+# OS Specific
+.DS_Store
